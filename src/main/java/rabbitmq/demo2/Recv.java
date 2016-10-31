@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class Recv {
 
-    private final static String QUEUE_NAME = "hello";
+    private final static String QUEUE_NAME = "task_queue";
 
     public static void main(String args[]) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -26,6 +26,7 @@ public class Recv {
 
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         System.out.println("[*] Waiting for messages. To exit press CTRL+C");
+        channel.basicQos(1);
 
         Consumer consumer = new DefaultConsumer(channel) {
 
@@ -43,8 +44,8 @@ public class Recv {
                 }
             }
         };
-
-        channel.basicConsume(QUEUE_NAME, true, consumer);
+        boolean autoAck = false;
+        channel.basicConsume(QUEUE_NAME, autoAck, consumer);
     }
 
     private static void doWork(String task) throws InterruptedException {

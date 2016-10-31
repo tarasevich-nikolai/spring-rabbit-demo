@@ -1,19 +1,18 @@
-package rabbitmq.demo2;
+package rabbitmq.demo3;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * @author Nikolai Tarasevich
+ * @author nikolai.tarasevich
  */
-public class Send {
+public class EmitLog {
 
-    private final static String QUEUE_NAME = "task_queue";
+    private static final String EXCHANGE_NAME = "logs";
 
     public static void main(String args[]) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -21,10 +20,10 @@ public class Send {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        boolean durable = true;
-        channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+
         String message = getMessage(args);
-        channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
+        channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes());
         System.out.println("[x] Sent '" + message + "'");
 
         channel.close();
